@@ -186,5 +186,10 @@ if "!HAS!"=="1" (
   echo   Новых изменений нет - на сервере
   echo   уже всё свежее.
 )
+if exist "%BACKUP%\*.jar" (
+  echo.
+  echo   Твои личные моды сохранены тут:
+  echo   %BACKUP%
+)
 echo.
 pause
