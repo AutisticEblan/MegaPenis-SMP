@@ -39,15 +39,7 @@ for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
   echo   - your mod: %%f
 )
 
-echo [3/4] Pulling latest changes...
-git pull origin main --rebase
-if errorlevel 1 (
-  echo [ERROR] Update conflict. Your mods are in: %BACKUP%
-  pause
-  exit /b 1
-)
-
-echo [4/4] Sending to the repository...
+echo [3/4] Committing your changes...
 git add -A
 git diff --cached --quiet
 if errorlevel 1 (
@@ -57,15 +49,25 @@ if errorlevel 1 (
     pause
     exit /b 1
   )
-  git push origin main
-  if errorlevel 1 (
-    echo [ERROR] Push failed. Check access via GET_ACCESS.bat.
-    pause
-    exit /b 1
-  )
-  echo [OK] Successfully sent to the repository!
+  echo [OK] Changes committed.
 ) else (
-  echo [OK] Nothing to push - everything is already in the repository.
+  echo [OK] Nothing to commit.
 )
+
+echo [4/4] Pulling latest changes and sending to the repository...
+git pull origin main --rebase
+if errorlevel 1 (
+  echo [ERROR] Update conflict. Your mods are in: %BACKUP%
+  pause
+  exit /b 1
+)
+
+git push origin main
+if errorlevel 1 (
+  echo [ERROR] Push failed. Check access via GET_ACCESS.bat.
+  pause
+  exit /b 1
+)
+echo [OK] Successfully sent to the repository!
 echo Backup: %BACKUP%
 pause
