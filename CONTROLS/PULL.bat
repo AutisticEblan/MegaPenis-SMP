@@ -1,5 +1,5 @@
 @echo off
-chcp 65001 >nul
+chcp 866 >nul
 setlocal enabledelayedexpansion
 title PULL MODS
 set "MODS=%~dp0.."

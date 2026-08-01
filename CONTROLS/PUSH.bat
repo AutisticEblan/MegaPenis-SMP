@@ -1,5 +1,5 @@
 @echo off
-chcp 65001 >nul
+chcp 866 >nul
 setlocal enabledelayedexpansion
 title PUSH MODS
 set "MODS=%~dp0.."
@@ -8,7 +8,7 @@ cd /d "%MODS%"
 cls
 echo.
 echo    ---------------------------------
-echo      PUSH MODS - ╨╛╤В╨┐╤А╨░╨▓╨╕╤В╤М ╨╝╨╛╨┤╤Л
+echo      PUSH MODS - отправить моды
 echo    ---------------------------------
 echo.
 
@@ -16,7 +16,7 @@ where git >nul 2>nul
 if errorlevel 1 goto no_git
 
 :check_access
-echo   [1/4] ╨Я╤А╨╛╨▓╨╡╤А╨║╨░ ╨┤╨╛╤Б╤В╤Г╨┐╨░...
+echo   [1/4] Проверка доступа...
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
 echo         OK
@@ -25,47 +25,47 @@ goto access_ok
 :no_git
 echo.
 echo   ---------------------------------
-echo     ╨Э╤Г╨╢╨╡╨╜ Git, ╤Б╨║╨░╤З╨░╨╡╨╝?
+echo     Нужен Git, скачаем?
 echo   ---------------------------------
 echo.
-echo   Git ╨╜╤Г╨╢╨╡╨╜, ╤З╤В╨╛╨▒╤Л ╨╛╤В╨┐╤А╨░╨▓╨╗╤П╤В╤М ╨╝╨╛╨┤╤Л.
-echo   ╨б╨║╨░╤З╨░╨╡╨╝ ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕?
-echo   (╨╜╤Г╨╢╨╡╨╜ ╨╕╨╜╤В╨╡╤А╨╜╨╡╤В, ~50 ╨Ь╨С)
-echo   ╨Ь╨╛╨╢╨╡╤В ╨┐╨╛╤П╨▓╨╕╤В╤М╤Б╤П ╨╛╨║╨╜╨╛ ╤Б ╨▓╨╛╨┐╤А╨╛╤Б╨╛╨╝ -
-echo   ╨╜╨░╨╢╨╝╨╕ ╨▓ ╨╜╤С╨╝ "╨Ф╨░".
+echo   Git нужен, чтобы отправлять моды.
+echo   Скачаем автоматически?
+echo   (нужен интернет, ~50 МБ)
+echo   Может появиться окно с вопросом -
+echo   нажми в нём "Да".
 echo.
 set "ANS="
-set /p "ANS=   Enter - ╤Б╨║╨░╤З╨░╤В╤М, N - ╨╛╤В╨╝╨╡╨╜╨╕╤В╤М: "
+set /p "ANS=   Enter - скачать, N - отменить: "
 if /i "%ANS%"=="N" exit /b 1
 
 :winget_install
 echo.
-echo   ╨б╨║╨░╤З╨╕╨▓╨░╤О Git, ╨┐╨╛╨┤╨╛╨╢╨┤╨╕...
+echo   Скачиваю Git, подожди...
 winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent --disable-interactivity
 if errorlevel 1 goto no_git_manual
 set "PATH=%PATH%;C:\Program Files\Git\cmd;C:\Program Files\Git\bin;C:\Program Files (x86)\Git\cmd;C:\Program Files (x86)\Git\bin"
 where git >nul 2>nul
 if errorlevel 1 goto no_git_manual
 echo.
-echo   Git ╨│╨╛╤В╨╛╨▓, ╨┐╤А╨╛╨┤╨╛╨╗╨╢╨░╤О...
+echo   Git готов, продолжаю...
 echo.
 goto check_access
 
 :no_git_manual
 echo.
 echo   ---------------------------------
-echo     ╨Э╨╡ ╨┐╨╛╨╗╤Г╤З╨╕╨╗╨╛╤Б╤М ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕
+echo     Не получилось автоматически
 echo   ---------------------------------
 echo.
-echo   ╨г╤Б╤В╨░╨╜╨╛╨▓╨╕ Git ╤Б╨░╨╝:
+echo   Установи Git сам:
 echo.
-echo     1. ╨Ю╤В╨║╤А╨╛╨╣ ╨▓ ╨▒╤А╨░╤Г╨╖╨╡╤А╨╡:
+echo     1. Открой в браузере:
 echo        https://git-scm.com/download/win
 echo.
-echo     2. ╨б╨║╨░╤З╨░╨╣ ╨╕ ╨╖╨░╨┐╤Г╤Б╤В╨╕ ╤Д╨░╨╣╨╗.
-echo        (╨▓╨╡╨╖╨┤╨╡ ╨╢╨╝╨╕ Next)
+echo     2. Скачай и запусти файл.
+echo        (везде жми Next)
 echo.
-echo     3. ╨Ч╨░╨┐╤Г╤Б╤В╨╕ PUSH.bat ╤Б╨╜╨╛╨▓╨░.
+echo     3. Запусти PUSH.bat снова.
 echo.
 pause
 exit /b 1
@@ -78,8 +78,8 @@ if not exist "%KEY%" (
   ssh-keygen -t ed25519 -N "" -f "%KEY%" -C "MegaPenis-SMP" >nul 2>&1
   if errorlevel 1 (
     echo.
-    echo   [╨Ю╨и╨Ш╨С╨Ъ╨Р] ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Б╨╛╨╖╨┤╨░╤В╤М ╨║╨╗╤О╤З.
-    echo   OpenSSH ╨▓╤Б╤В╤А╨╛╨╡╨╜ ╨▓ Windows 10/11.
+    echo   [ОШИБКА] Не удалось создать ключ.
+    echo   OpenSSH встроен в Windows 10/11.
     echo.
     pause
     exit /b 1
@@ -88,31 +88,31 @@ if not exist "%KEY%" (
 clip < "%KEY%.pub" >nul 2>&1
 echo.
 echo   ---------------------------------
-echo     ╨Я╨╛╨┤╨╡╨╗╨╕╤Б╤М ╨║╨╗╤О╤З╨╛╨╝ ╤Б ╨░╨┤╨╝╨╕╨╜╨╛╨╝!
+echo     Поделись ключом с админом!
 echo   ---------------------------------
 echo.
-echo   ╨Ъ╨╗╤О╤З ╤Б╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜ ╨▓ ╨▒╤Г╤Д╨╡╤А ╨╛╨▒╨╝╨╡╨╜╨░!
+echo   Ключ скопирован в буфер обмена!
 echo.
-echo   ╨Ю╤В╨┐╤А╨░╨▓╤М ╨╡╨│╨╛ ╨░╨┤╨╝╨╕╨╜╤Г, ╨┤╨╗╤П ╨▓╤Л╨┤╨░╤З╨╕ ╨┤╨╛╤Б╤В╤Г╨┐╨░.
+echo   Отправь его админу, для выдачи доступа.
 echo.
-echo   ╨Я╨╛╤В╨╛╨╝ ╨╖╨░╨┐╤Г╤Б╤В╨╕ PUSH.bat ╤Б╨╜╨╛╨▓╨░.
+echo   Потом запусти PUSH.bat снова.
 echo.
 pause
 exit /b 1
 
 :access_ok
-echo   [2/4] ╨Я╨╛╨┤╨│╨╛╤В╨╛╨▓╨║╨░ ╨╝╨╛╨┤╨╛╨▓...
+echo   [2/4] Подготовка модов...
 
 if exist "%MODS%\.git" goto repo_exists
 
-echo   [..] ╨а╨╡╨┐╨╛╨╖╨╕╤В╨╛╤А╨╕╨╣ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜. ╨Ш╨╜╨╕╤Ж╨╕╨░╨╗╨╕╨╖╨░╤Ж╨╕╤П...
+echo   [..] Репозиторий не найден. Инициализация...
 git init >nul 2>&1
 git remote add origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
 git fetch origin >nul 2>&1
 if errorlevel 1 (
   echo.
-  echo   [╨Ю╨и╨Ш╨С╨Ъ╨Р] ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Б╨▓╤П╨╖╨░╤В╤М╤Б╤П ╤Б ╤Б╨╡╤А╨▓╨╡╤А╨╛╨╝.
-  echo   ╨Я╤А╨╛╨▓╨╡╤А╤М ╨╕╨╜╤В╨╡╤А╨╜╨╡╤В ╨╕ ╨┐╨╛╨┐╤А╨╛╨▒╤Г╨╣ ╤Б╨╜╨╛╨▓╨░.
+  echo   [ОШИБКА] Не удалось связаться с сервером.
+  echo   Проверь интернет и попробуй снова.
   echo.
   pause
   exit /b 1
@@ -137,14 +137,14 @@ for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
 )
 echo         OK
 
-echo   [3/4] ╨Ю╤В╨┐╤А╨░╨▓╨║╨░ ╨╝╨╛╨┤╨╛╨▓...
+echo   [3/4] Отправка модов...
 git add -A >nul 2>&1
 git diff --cached --quiet
 if errorlevel 1 (
   git commit -m "mods update %TS%" >nul 2>&1
   if errorlevel 1 (
     echo.
-    echo   [╨Ю╨и╨Ш╨С╨Ъ╨Р] ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Б╨╛╤Е╤А╨░╨╜╨╕╤В╤М ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╤П.
+    echo   [ОШИБКА] Не удалось сохранить изменения.
     echo.
     pause
     exit /b 1
@@ -156,9 +156,9 @@ if errorlevel 1 (
 git pull origin main --rebase >nul 2>&1
 if errorlevel 1 (
   echo.
-  echo   [╨Ю╨и╨Ш╨С╨Ъ╨Р] ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨╛╨▒╨╜╨╛╨▓╨╕╤В╤М╤Б╤П ╤Б ╤Б╨╡╤А╨▓╨╡╤А╨░.
-  echo   ╨в╨▓╨╛╨╕ ╨╝╨╛╨┤╤Л ╨▓ ╨▒╨╡╨╖╨╛╨┐╨░╤Б╨╜╨╛╤Б╤В╨╕:  %BACKUP%
-  echo   ╨Ю╨▒╤А╨░╤В╨╕╤Б╤М ╨║ ╨░╨┤╨╝╨╕╨╜╤Г.
+  echo   [ОШИБКА] Не удалось обновиться с сервера.
+  echo   Твои моды в безопасности:  %BACKUP%
+  echo   Обратись к админу.
   echo.
   pause
   exit /b 1
@@ -166,8 +166,8 @@ if errorlevel 1 (
 git push origin main >nul 2>&1
 if errorlevel 1 (
   echo.
-  echo   [╨Ю╨и╨Ш╨С╨Ъ╨Р] ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨╛╤В╨┐╤А╨░╨▓╨╕╤В╤М ╨╝╨╛╨┤╤Л ╨╜╨░ ╤Б╨╡╤А╨▓╨╡╤А.
-  echo   ╨Я╤А╨╛╨▓╨╡╤А╤М ╨┤╨╛╤Б╤В╤Г╨┐ ╨╕ ╨┐╨╛╨┐╤А╨╛╨▒╤Г╨╣ ╤Б╨╜╨╛╨▓╨░.
+  echo   [ОШИБКА] Не удалось отправить моды на сервер.
+  echo   Проверь доступ и попробуй снова.
   echo.
   pause
   exit /b 1
@@ -178,18 +178,18 @@ cls
 if "!HAS!"=="1" (
   echo.
   echo   ---------------------------------
-  echo     ╨У╨╛╤В╨╛╨▓╨╛!
+  echo     Готово!
   echo   ---------------------------------
   echo.
-  echo   ╨Ь╨╛╨┤╤Л ╨╛╤В╨┐╤А╨░╨▓╨╗╨╡╨╜╤Л ╨╜╨░ ╤Б╨╡╤А╨▓╨╡╤А.
+  echo   Моды отправлены на сервер.
 ) else (
   echo.
   echo   ---------------------------------
-  echo     ╨Ю╨▒╨╜╨╛╨▓╨╗╨╡╨╜╨╛!
+  echo     Обновлено!
   echo   ---------------------------------
   echo.
-  echo   ╨Э╨╛╨▓╤Л╤Е ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╨╣ ╨╜╨╡╤В - ╨╜╨░ ╤Б╨╡╤А╨▓╨╡╤А╨╡
-  echo   ╤Г╨╢╨╡ ╨▓╤Б╤С ╤Б╨▓╨╡╨╢╨╡╨╡.
+  echo   Новых изменений нет - на сервере
+  echo   уже всё свежее.
 )
 echo.
 pause
