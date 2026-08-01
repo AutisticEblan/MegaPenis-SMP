@@ -6,14 +6,15 @@ cd /d "%MODS%"
 
 cls
 echo.
-echo    =============================
-echo      PUSH MODS - ОТПРАВИТЬ МОДЫ
-echo    =============================
+echo    ---------------------------------
+echo      PUSH MODS - отправить моды
+echo    ---------------------------------
 echo.
 
 where git >nul 2>nul
 if errorlevel 1 goto no_git
 
+:check_access
 echo   [1/4] Проверка доступа...
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
@@ -22,12 +23,11 @@ goto access_ok
 
 :no_git
 echo.
-echo   =============================
-echo     GIT НЕ УСТАНОВЛЕН
-echo   =============================
+echo   ---------------------------------
+echo     Нужен Git
+echo   ---------------------------------
 echo.
 echo   Git нужен, чтобы отправлять моды.
-echo.
 echo   Установить автоматически?
 echo   (нужен интернет, ~50 МБ)
 echo   Может появиться окно с вопросом -
@@ -42,29 +42,27 @@ echo.
 echo   Устанавливаю Git, подожди...
 winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent --disable-interactivity
 if errorlevel 1 goto no_git_manual
+set "PATH=%PATH%;C:\Program Files\Git\cmd;C:\Program Files\Git\bin;C:\Program Files (x86)\Git\cmd;C:\Program Files (x86)\Git\bin"
+where git >nul 2>nul
+if errorlevel 1 goto no_git_manual
 echo.
-echo   =============================
-echo     GIT УСТАНОВЛЕН!
-echo   =============================
+echo   Git установлен, продолжаю...
 echo.
-echo   Закрой это окно и запусти PUSH.bat снова.
-echo.
-pause
-exit /b 0
+goto check_access
 
 :no_git_manual
 echo.
-echo   =============================
-echo     АВТОУСТАНОВКА НЕ ПОЛУЧИЛАСЬ
-echo   =============================
+echo   ---------------------------------
+echo     Не получилось автоматически
+echo   ---------------------------------
 echo.
-echo   Установи Git вручную:
+echo   Установи Git сам:
 echo.
-echo     1. Открой в браузере ссылку:
+echo     1. Открой в браузере:
 echo        https://git-scm.com/download/win
 echo.
-echo     2. Скачай файл и запусти его.
-echo        (всё оставляй по умолчанию - Жми "Next")
+echo     2. Скачай и запусти файл.
+echo        (везде жми Next)
 echo.
 echo     3. Запусти PUSH.bat снова.
 echo.
@@ -88,17 +86,16 @@ if not exist "%KEY%" (
 )
 clip < "%KEY%.pub" >nul 2>&1
 echo.
-echo   =============================
-echo     НУЖЕН ДОСТУП
-echo   =============================
+echo   ---------------------------------
+echo     Нужен доступ
+echo   ---------------------------------
 echo.
-echo   Ключ скопирован в буфер обмена!
+echo   Ключ уже в буфере обмена!
 echo.
-echo   Отправь его админу - вставь в любое
-echo   сообщение (Ctrl+V).
+echo   Вставь его админу в любое сообщение
+echo   (Ctrl+V) - и жди, пока тебя добавят.
 echo.
-echo   Когда админ добавит тебя - запусти
-echo   PUSH.bat снова.
+echo   Потом запусти PUSH.bat снова.
 echo.
 pause
 exit /b 1
@@ -180,16 +177,16 @@ echo         OK
 cls
 if "!HAS!"=="1" (
   echo.
-  echo   =============================
-  echo     ГОТОВО - МОДЫ ОТПРАВЛЕНЫ!
-  echo   =============================
+  echo   ---------------------------------
+echo     Готово - моды отправлены!
+echo   ---------------------------------
   echo.
   echo   Моды отправлены на сервер.
 ) else (
   echo.
-  echo   =============================
-  echo           АКТУАЛЬНО
-  echo   =============================
+  echo   ---------------------------------
+echo     Актуально
+echo   ---------------------------------
   echo.
   echo   Новых изменений нет - на сервере
   echo   уже всё свежее.
