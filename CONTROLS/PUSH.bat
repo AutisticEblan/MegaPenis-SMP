@@ -16,10 +16,10 @@ where git >nul 2>nul
 if errorlevel 1 goto no_git
 
 :check_access
-echo   [1/4] Проверка доступа...
+<nul set /p="  [1/4] Проверка доступа...  "
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
-echo         OK
+echo OK
 goto access_ok
 
 :no_git
@@ -101,10 +101,11 @@ pause
 exit /b 1
 
 :access_ok
-echo   [2/4] Подготовка модов...
+<nul set /p="  [2/4] Подготовка модов...  "
 
 if exist "%MODS%\.git" goto repo_exists
 
+echo.
 echo   [..] Репозиторий не найден. Инициализация...
 git init >nul 2>&1
 git remote add origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
@@ -119,7 +120,8 @@ if errorlevel 1 (
 )
 git reset --hard origin/main >nul 2>&1
 git branch -M main >nul 2>&1
-echo         OK
+echo OK
+goto repo_done
 
 :repo_exists
 git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
@@ -135,9 +137,13 @@ for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
   copy "%%f" "%BACKUP%\" >nul 2>&1
   set "BK=1"
 )
-echo         OK
+echo OK
 
-echo   [3/4] Отправка модов...
+:repo_done
+if not defined TS for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
+if not defined BACKUP set "BACKUP=%~dp0_backup\push_%TS%"
+
+<nul set /p="  [3/4] Отправка модов...  "
 git add -A >nul 2>&1
 git diff --cached --quiet
 if errorlevel 1 (
@@ -172,7 +178,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo         OK
+echo OK
 
 cls
 if "!HAS!"=="1" (
