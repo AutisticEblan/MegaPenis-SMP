@@ -12,14 +12,9 @@ echo    =============================
 echo.
 
 where git >nul 2>nul
-if errorlevel 1 (
-  echo   [ERROR] Git is not installed.
-  echo   Download and install it:  https://git-scm.com/download/win
-  echo   Then run this script again.
-  echo.
-  pause
-  exit /b 1
-)
+if errorlevel 1 goto no_git
+
+if not exist "%MODS%\.git" goto no_git
 
 echo   [1/2] Saving your mods...
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
@@ -51,7 +46,26 @@ if errorlevel 1 (
   exit /b 1
 )
 echo         OK
+goto done
 
+:no_git
+echo   [1/2] Saving your mods...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0_pull_zip.ps1" backup
+echo         OK
+
+echo   [2/2] Downloading and updating mods...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0_pull_zip.ps1" update
+if errorlevel 1 (
+  echo.
+  echo   [ERROR] Could not update mods.
+  echo   Check your internet connection and try again.
+  echo.
+  pause
+  exit /b 1
+)
+echo         OK
+
+:done
 cls
 echo.
 echo   =============================
