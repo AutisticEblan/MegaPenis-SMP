@@ -93,7 +93,6 @@ echo         OK
 
 :repo_exists
 git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
-for /f %%i in ('git rev-parse --abbrev-ref HEAD') do set "BR=%%i"
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
 set "BK=0"
@@ -124,7 +123,7 @@ if errorlevel 1 (
 ) else (
   set "HAS=0"
 )
-git pull origin %BR% --rebase >nul 2>&1
+git pull origin main --rebase >nul 2>&1
 if errorlevel 1 (
   echo.
   echo   [ERROR] Could not update from the server.
@@ -134,7 +133,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-git push origin %BR% >nul 2>&1
+git push origin main >nul 2>&1
 if errorlevel 1 (
   echo.
   echo   [ERROR] Could not send mods to the server.
