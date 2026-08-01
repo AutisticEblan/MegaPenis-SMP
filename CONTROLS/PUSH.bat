@@ -24,29 +24,29 @@ goto access_ok
 :no_git
 echo.
 echo   ---------------------------------
-echo     Нужен Git
+echo     Нужен Git, скачаем?
 echo   ---------------------------------
 echo.
 echo   Git нужен, чтобы отправлять моды.
-echo   Установить автоматически?
+echo   Скачаем автоматически?
 echo   (нужен интернет, ~50 МБ)
 echo   Может появиться окно с вопросом -
 echo   нажми в нём "Да".
 echo.
 set "ANS="
-set /p "ANS=   Enter - установить, N - отменить: "
+set /p "ANS=   Enter - скачать, N - отменить: "
 if /i "%ANS%"=="N" exit /b 1
 
 :winget_install
 echo.
-echo   Устанавливаю Git, подожди...
+echo   Скачиваю Git, подожди...
 winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent --disable-interactivity
 if errorlevel 1 goto no_git_manual
 set "PATH=%PATH%;C:\Program Files\Git\cmd;C:\Program Files\Git\bin;C:\Program Files (x86)\Git\cmd;C:\Program Files (x86)\Git\bin"
 where git >nul 2>nul
 if errorlevel 1 goto no_git_manual
 echo.
-echo   Git установлен, продолжаю...
+echo   Git готов, продолжаю...
 echo.
 goto check_access
 
@@ -77,7 +77,7 @@ if not exist "%KEY%" (
   ssh-keygen -t ed25519 -N "" -f "%KEY%" -C "MegaPenis-SMP" >nul 2>&1
   if errorlevel 1 (
     echo.
-    echo   [ОШИБКА] Не удалось создать ключ доступа.
+    echo   [ОШИБКА] Не удалось создать ключ.
     echo   OpenSSH встроен в Windows 10/11.
     echo.
     pause
@@ -87,7 +87,7 @@ if not exist "%KEY%" (
 clip < "%KEY%.pub" >nul 2>&1
 echo.
 echo   ---------------------------------
-echo     Нужен доступ
+echo     Добавим ключ!
 echo   ---------------------------------
 echo.
 echo   Ключ уже в буфере обмена!
@@ -178,15 +178,15 @@ cls
 if "!HAS!"=="1" (
   echo.
   echo   ---------------------------------
-echo     Готово - моды отправлены!
-echo   ---------------------------------
+  echo     Готово!
+  echo   ---------------------------------
   echo.
   echo   Моды отправлены на сервер.
 ) else (
   echo.
   echo   ---------------------------------
-echo     Актуально
-echo   ---------------------------------
+  echo     Обновлено!
+  echo   ---------------------------------
   echo.
   echo   Новых изменений нет - на сервере
   echo   уже всё свежее.
