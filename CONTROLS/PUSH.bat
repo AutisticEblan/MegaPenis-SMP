@@ -16,9 +16,10 @@ where git >nul 2>nul
 if errorlevel 1 goto no_git
 
 :check_access
+<nul set /p="> [1/4] Проверка доступа...   "
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
-echo   [1/4] Проверка доступа...   OK
+echo OK
 goto access_ok
 
 :no_git
@@ -125,12 +126,14 @@ for /f %%i in ('git config user.email') do set "GE=%%i"
 if not defined GE git config user.email "%USERNAME%@megapenis" >nul 2>&1
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
+<nul set /p="> [2/4] Подготовка модов...   "
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
   if not exist "%BACKUP%" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
 )
-echo   [2/4] Подготовка модов...   OK
+echo OK
 
+<nul set /p="> [3/4] Отправка модов...   "
 git add -A >nul 2>&1
 git diff --cached --quiet
 if errorlevel 1 (
@@ -165,7 +168,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo   [3/4] Отправка модов...   OK
+echo OK
 
 cls
 if "%HAS%"=="1" (

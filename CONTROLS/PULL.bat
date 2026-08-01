@@ -19,6 +19,7 @@ where git >nul 2>nul
 if errorlevel 1 goto no_git
 if not exist "%MODS%\.git" goto no_git
 
+<nul set /p="> [1/2] Сохраняем твои моды...   "
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
   if not exist "%BACKUP%" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
@@ -28,8 +29,9 @@ for /f "delims=" %%f in ('git diff --name-only -- "*.jar"') do (
   copy "%%f" "%BACKUP%\" >nul 2>&1
 )
 git checkout -- "*.jar" >nul 2>&1
-echo   [1/2] Сохраняем твои моды...   OK
+echo OK
 
+<nul set /p="> [2/2] Обновляем моды...   "
 git pull origin main >nul 2>&1
 if errorlevel 1 (
   echo.
@@ -41,13 +43,15 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo   [2/2] Обновляем моды...   OK
+echo OK
 goto done
 
 :no_git
+<nul set /p="> [1/2] Сохраняем твои моды...   "
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$b='%BACKUP%'; New-Item -ItemType Directory -Path $b -Force | Out-Null; Copy-Item (Join-Path (Split-Path '%~dp0' -Parent) '*.jar') $b -ErrorAction SilentlyContinue"
-echo   [1/2] Сохраняем твои моды...   OK
+echo OK
 
+<nul set /p="> [2/2] Обновляем моды...   "
 powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $m=(Split-Path '%~dp0' -Parent); $u='https://github.com/AutisticEblan/MegaPenis-SMP/archive/refs/heads/main.zip'; $t=Join-Path $env:TEMP ('mp_pull_'+[guid]::NewGuid().ToString('N')); $z=$t+'.zip'; Invoke-WebRequest -Uri $u -OutFile $z -UseBasicParsing; Expand-Archive -Path $z -DestinationPath $t -Force; $j=Get-ChildItem -Path $t -Recurse -Filter '*.jar'; if($j.Count -eq 0){exit 1}; $j | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $m $_.Name) -Force }; Remove-Item -LiteralPath $z,$t -Recurse -Force -ErrorAction SilentlyContinue; exit 0"
 if errorlevel 1 (
   echo.
@@ -57,7 +61,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo   [2/2] Обновляем моды...   OK
+echo OK
 
 :done
 cls
