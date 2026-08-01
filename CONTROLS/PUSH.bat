@@ -1,99 +1,132 @@
 @echo off
 setlocal enabledelayedexpansion
-title PUSH - send mods to repository
+title PUSH MODS
 set "MODS=%~dp0.."
 cd /d "%MODS%"
 
-echo ============================================================
-echo   PUSH - send your mods to the repository
-echo ============================================================
+cls
+echo.
+echo    =============================
+echo      PUSH MODS TO THE SERVER
+echo    =============================
 echo.
 
 where git >nul 2>nul
 if errorlevel 1 (
-  echo [ERROR] Git is not installed. Download: https://git-scm.com/download/win
+  echo   [ERROR] Git is not installed.
+  echo   Download and install it:  https://git-scm.com/download/win
+  echo   Then run this script again.
   echo.
   pause
   exit /b 1
 )
 
-echo [1/4] Checking SSH access to GitHub...
+echo   [1/4] Checking access...
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
-echo [OK] Access granted.
+echo         OK
 goto access_ok
 
 :no_access
-echo.
-echo [INFO] No SSH access found. Setting up your key...
 set "SSHDIR=%USERPROFILE%\.ssh"
 set "KEY=%SSHDIR%\id_ed25519"
-if exist "%KEY%" (
-  echo [OK] SSH key already exists: %KEY%
-) else (
+if not exist "%KEY%" (
   if not exist "%SSHDIR%" mkdir "%SSHDIR%"
-  ssh-keygen -t ed25519 -N "" -f "%KEY%" -C "MegaPenis-SMP"
+  ssh-keygen -t ed25519 -N "" -f "%KEY%" -C "MegaPenis-SMP" >nul 2>&1
   if errorlevel 1 (
-    echo [ERROR] Failed to create SSH key. OpenSSH is built into Windows 10/11.
+    echo   [ERROR] Could not create the access key.
+    echo   OpenSSH is built into Windows 10/11.
+    echo.
     pause
     exit /b 1
   )
-  echo [OK] SSH key created.
 )
 echo.
-echo ============================================================
-echo  SEND THIS KEY TO THE ADMIN TO GET PUSH ACCESS:
-echo ============================================================
-type "%KEY%.pub"
-echo ============================================================
-type "%KEY%.pub" | clip
-echo [OK] Key copied to clipboard - paste it to the admin (Ctrl+V).
+echo   ============================================
+echo     ACCESS REQUIRED
+echo   ============================================
 echo.
-echo After the admin grants access, just run PUSH.bat again.
+echo   Send the key below to the admin to get access:
+echo.
+type "%KEY%.pub"
+echo.
+echo   ============================================
+echo.
+echo   The key was copied to the clipboard.
+echo   Just paste it to the admin in any message.
+echo.
+echo   When the admin grants access, run this script again.
+echo.
 pause
 exit /b 1
 
 :access_ok
-git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git 2>nul
-
+echo   [2/4] Preparing your mods...
+git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
-mkdir "%BACKUP%" 2>nul
-echo [2/4] Backing up your own mods to: %BACKUP%
+mkdir "%BACKUP%" >nul 2>&1
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
-  copy "%%f" "%BACKUP%\" >nul 2>nul
-  echo   - your mod: %%f
+  copy "%%f" "%BACKUP%\" >nul 2>&1
 )
+echo         OK
 
-echo [3/4] Committing your changes...
-git add -A
+echo   [3/4] Sending your mods...
+git add -A >nul 2>&1
 git diff --cached --quiet
 if errorlevel 1 (
-  git commit -m "mods update %TS%"
+  git commit -m "mods update %TS%" >nul 2>&1
   if errorlevel 1 (
-    echo [ERROR] Commit failed. Check git config user.name and user.email.
+    echo.
+    echo   [ERROR] Could not save changes.
+    echo   Set your name and email in git:
+    echo     git config --global user.name "YourName"
+    echo     git config --global user.email "you@example.com"
+    echo   Then run this script again.
+    echo.
     pause
     exit /b 1
   )
-  echo [OK] Changes committed.
+  set "HAS=1"
 ) else (
-  echo [OK] Nothing to commit.
+  set "HAS=0"
 )
-
-echo [4/4] Pulling latest changes and sending to the repository...
-git pull origin main --rebase
+git pull origin main --rebase >nul 2>&1
 if errorlevel 1 (
-  echo [ERROR] Update conflict. Your mods are in: %BACKUP%
+  echo.
+  echo   [ERROR] Could not update from the server.
+  echo   Your mods are safe in a backup:  %BACKUP%
+  echo   Ask the admin for help.
+  echo.
   pause
   exit /b 1
 )
-
-git push origin main
+git push origin main >nul 2>&1
 if errorlevel 1 (
-  echo [ERROR] Push failed. Check access via SSH key.
+  echo.
+  echo   [ERROR] Could not send mods to the server.
+  echo   Check your access and try again.
+  echo.
   pause
   exit /b 1
 )
-echo [OK] Successfully sent to the repository!
-echo Backup: %BACKUP%
+echo         OK
+
+cls
+if "!HAS!"=="1" (
+  echo.
+  echo   =============================
+  echo      DONE - MODS SENT!
+  echo   =============================
+  echo.
+  echo   Your mods were sent to the server.
+) else (
+  echo.
+  echo   =============================
+  echo      UP TO DATE
+  echo   =============================
+  echo.
+  echo   Nothing new to send - the server is up to date.
+)
+echo.
 pause
