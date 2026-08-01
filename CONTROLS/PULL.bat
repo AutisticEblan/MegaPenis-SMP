@@ -24,12 +24,16 @@ if errorlevel 1 (
 echo   [1/2] Saving your mods...
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\%TS%"
-mkdir "%BACKUP%" >nul 2>&1
+set "BK=0"
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
+  if "!BK!"=="0" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
+  set "BK=1"
 )
 for /f "delims=" %%f in ('git diff --name-only -- "*.jar"') do (
+  if "!BK!"=="0" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
+  set "BK=1"
 )
 git checkout -- "*.jar" >nul 2>&1
 echo         OK

@@ -65,9 +65,11 @@ echo   [2/4] Preparing your mods...
 git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
-mkdir "%BACKUP%" >nul 2>&1
+set "BK=0"
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
+  if "!BK!"=="0" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
+  set "BK=1"
 )
 echo         OK
 
