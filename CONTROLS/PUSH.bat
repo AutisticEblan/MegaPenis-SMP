@@ -33,8 +33,9 @@ echo   (нужен интернет, ~50 МБ)
 echo   Может появиться окно с вопросом -
 echo   нажми в нём "Да".
 echo.
-choice /C YN /N /M "   Y - установить, N - отменить"
-if errorlevel 2 exit /b 1
+set "ANS="
+set /p "ANS=   Enter - установить, N - отменить: "
+if /i "%ANS%"=="N" exit /b 1
 
 :winget_install
 echo.
