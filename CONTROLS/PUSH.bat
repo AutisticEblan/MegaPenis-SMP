@@ -7,14 +7,14 @@ cd /d "%MODS%"
 cls
 echo.
 echo    =============================
-echo      PUSH MODS TO THE SERVER
+echo      PUSH MODS - ОТПРАВИТЬ МОДЫ
 echo    =============================
 echo.
 
 where git >nul 2>nul
 if errorlevel 1 goto no_git
 
-echo   [1/4] Checking access...
+echo   [1/4] Проверка доступа...
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
 echo         OK
@@ -22,18 +22,49 @@ goto access_ok
 
 :no_git
 echo.
-echo   [ERROR] Git is not installed on this computer.
+echo   =============================
+echo     GIT НЕ УСТАНОВЛЕН
+echo   =============================
 echo.
-echo   PUSH needs Git to work. To install it:
+echo   Git нужен, чтобы отправлять моды.
 echo.
-echo     1. Open this link in your browser:
+echo   Установить автоматически?
+echo   (нужен интернет, ~50 МБ, может появиться
+echo    окно с вопросом - нажми "Да")
+echo.
+echo   Нажми любую клавишу для установки,
+echo   или закрой это окно, чтобы отменить.
+echo.
+pause
+echo.
+echo   Устанавливаю Git, подожди...
+winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent --disable-interactivity
+if errorlevel 1 goto no_git_manual
+echo.
+echo   =============================
+echo     GIT УСТАНОВЛЕН!
+echo   =============================
+echo.
+echo   Закрой это окно и запусти PUSH.bat снова.
+echo.
+pause
+exit /b 0
+
+:no_git_manual
+echo.
+echo   =============================
+echo     АВТОУСТАНОВКА НЕ ПОЛУЧИЛАСЬ
+echo   =============================
+echo.
+echo   Установи Git вручную:
+echo.
+echo     1. Открой в браузере ссылку:
 echo        https://git-scm.com/download/win
 echo.
-echo     2. Download the file and run it.
-echo        (leave all default options - just click Next)
+echo     2. Скачай файл и запусти его.
+echo        (всё оставляй по умолчанию - Жми "Next")
 echo.
-echo     3. When installation is done, close this window
-echo        and run PUSH.bat again.
+echo     3. Запусти PUSH.bat снова.
 echo.
 pause
 exit /b 1
@@ -45,45 +76,44 @@ if not exist "%KEY%" (
   if not exist "%SSHDIR%" mkdir "%SSHDIR%"
   ssh-keygen -t ed25519 -N "" -f "%KEY%" -C "MegaPenis-SMP" >nul 2>&1
   if errorlevel 1 (
-    echo   [ERROR] Could not create the access key.
-    echo   OpenSSH is built into Windows 10/11.
+    echo.
+    echo   [ОШИБКА] Не удалось создать ключ доступа.
+    echo   OpenSSH встроен в Windows 10/11.
     echo.
     pause
     exit /b 1
   )
 )
+clip < "%KEY%.pub" >nul 2>&1
 echo.
-echo   ============================================
-echo     ACCESS REQUIRED
-echo   ============================================
+echo   =============================
+echo     НУЖЕН ДОСТУП
+echo   =============================
 echo.
-echo   Send the key below to the admin to get access:
+echo   Ключ скопирован в буфер обмена!
 echo.
-type "%KEY%.pub"
-clip < "%KEY%.pub"
+echo   Отправь его админу - вставь в любое
+echo   сообщение (Ctrl+V).
 echo.
-echo   ============================================
-echo.
-echo   The key above was copied to your clipboard.
-echo   Just paste it to the admin in any message (Ctrl+V).
-echo.
-echo   When the admin grants access, run this script again.
+echo   Когда админ добавит тебя - запусти
+echo   PUSH.bat снова.
 echo.
 pause
 exit /b 1
 
 :access_ok
-echo   [2/4] Preparing your mods...
+echo   [2/4] Подготовка модов...
 
 if exist "%MODS%\.git" goto repo_exists
 
-echo   [..] Repository not found. Initializing...
+echo   [..] Репозиторий не найден. Инициализация...
 git init >nul 2>&1
 git remote add origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
 git fetch origin >nul 2>&1
 if errorlevel 1 (
-  echo   [ERROR] Could not reach the server.
-  echo   Check your internet connection and try again.
+  echo.
+  echo   [ОШИБКА] Не удалось связаться с сервером.
+  echo   Проверь интернет и попробуй снова.
   echo.
   pause
   exit /b 1
@@ -94,6 +124,10 @@ echo         OK
 
 :repo_exists
 git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
+for /f %%i in ('git config user.name') do set "GN=%%i"
+if not defined GN git config user.name "%USERNAME%" >nul 2>&1
+for /f %%i in ('git config user.email') do set "GE=%%i"
+if not defined GE git config user.email "%USERNAME%@megapenis" >nul 2>&1
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
 set "BK=0"
@@ -104,18 +138,14 @@ for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
 )
 echo         OK
 
-echo   [3/4] Sending your mods...
+echo   [3/4] Отправка модов...
 git add -A >nul 2>&1
 git diff --cached --quiet
 if errorlevel 1 (
   git commit -m "mods update %TS%" >nul 2>&1
   if errorlevel 1 (
     echo.
-    echo   [ERROR] Could not save changes.
-    echo   Set your name and email in git:
-    echo     git config --global user.name "YourName"
-    echo     git config --global user.email "you@example.com"
-    echo   Then run this script again.
+    echo   [ОШИБКА] Не удалось сохранить изменения.
     echo.
     pause
     exit /b 1
@@ -127,9 +157,9 @@ if errorlevel 1 (
 git pull origin main --rebase >nul 2>&1
 if errorlevel 1 (
   echo.
-  echo   [ERROR] Could not update from the server.
-  echo   Your mods are safe in a backup:  %BACKUP%
-  echo   Ask the admin for help.
+  echo   [ОШИБКА] Не удалось обновиться с сервера.
+  echo   Твои моды в безопасности:  %BACKUP%
+  echo   Обратись к админу.
   echo.
   pause
   exit /b 1
@@ -137,8 +167,8 @@ if errorlevel 1 (
 git push origin main >nul 2>&1
 if errorlevel 1 (
   echo.
-  echo   [ERROR] Could not send mods to the server.
-  echo   Check your access and try again.
+  echo   [ОШИБКА] Не удалось отправить моды на сервер.
+  echo   Проверь доступ и попробуй снова.
   echo.
   pause
   exit /b 1
@@ -149,17 +179,18 @@ cls
 if "!HAS!"=="1" (
   echo.
   echo   =============================
-  echo      DONE - MODS SENT!
+  echo     ГОТОВО - МОДЫ ОТПРАВЛЕНЫ!
   echo   =============================
   echo.
-  echo   Your mods were sent to the server.
+  echo   Моды отправлены на сервер.
 ) else (
   echo.
   echo   =============================
-  echo      UP TO DATE
+  echo           АКТУАЛЬНО
   echo   =============================
   echo.
-  echo   Nothing new to send - the server is up to date.
+  echo   Новых изменений нет - на сервере
+  echo   уже всё свежее.
 )
 echo.
 pause
