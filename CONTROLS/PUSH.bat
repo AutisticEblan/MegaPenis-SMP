@@ -29,13 +29,14 @@ echo.
 echo   Git нужен, чтобы отправлять моды.
 echo.
 echo   Установить автоматически?
-echo   (нужен интернет, ~50 МБ, может появиться
-echo    окно с вопросом - нажми "Да")
+echo   (нужен интернет, ~50 МБ)
+echo   Может появиться окно с вопросом -
+echo   нажми в нём "Да".
 echo.
-echo   Нажми любую клавишу для установки,
-echo   или закрой это окно, чтобы отменить.
-echo.
-pause
+choice /C YN /N /M "   Y - установить, N - отменить"
+if errorlevel 2 exit /b 1
+
+:winget_install
 echo.
 echo   Устанавливаю Git, подожди...
 winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent --disable-interactivity
