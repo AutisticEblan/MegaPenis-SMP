@@ -1,6 +1,6 @@
 @echo off
 chcp 866 >nul
-setlocal enabledelayedexpansion
+setlocal
 title PULL MODS
 set "MODS=%~dp0.."
 cd /d "%MODS%"
@@ -8,7 +8,7 @@ cd /d "%MODS%"
 cls
 echo.
 echo   ---------------------------------
-echo     Обновление^!
+echo     Обновление!
 echo   ---------------------------------
 echo.
 
@@ -19,16 +19,13 @@ where git >nul 2>nul
 if errorlevel 1 goto no_git
 if not exist "%MODS%\.git" goto no_git
 
-set "BK=0"
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
-  if "!BK!"=="0" mkdir "%BACKUP%" >nul 2>&1
+  if not exist "%BACKUP%" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
-  set "BK=1"
 )
 for /f "delims=" %%f in ('git diff --name-only -- "*.jar"') do (
-  if "!BK!"=="0" mkdir "%BACKUP%" >nul 2>&1
+  if not exist "%BACKUP%" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
-  set "BK=1"
 )
 git checkout -- "*.jar" >nul 2>&1
 echo   [1/2] Сохраняем твои моды...   OK
@@ -66,7 +63,7 @@ echo   [2/2] Обновляем моды...   OK
 cls
 echo.
 echo   ---------------------------------
-echo     Готово^!
+echo     Готово!
 echo   ---------------------------------
 echo.
 echo   Моды обновлены.

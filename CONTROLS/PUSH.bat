@@ -1,6 +1,6 @@
 @echo off
 chcp 866 >nul
-setlocal enabledelayedexpansion
+setlocal
 title PUSH MODS
 set "MODS=%~dp0.."
 cd /d "%MODS%"
@@ -87,10 +87,10 @@ if not exist "%KEY%" (
 clip < "%KEY%.pub" >nul 2>&1
 echo.
 echo   ---------------------------------
-echo     Поделись ключом с админом^!
+echo     Поделись ключом с админом!
 echo   ---------------------------------
 echo.
-echo   Ключ скопирован в буфер обмена^!
+echo   Ключ скопирован в буфер обмена!
 echo.
 echo   Отправь его админу, для выдачи доступа.
 echo.
@@ -125,11 +125,9 @@ for /f %%i in ('git config user.email') do set "GE=%%i"
 if not defined GE git config user.email "%USERNAME%@megapenis" >nul 2>&1
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
-set "BK=0"
 for /f "delims=" %%f in ('git ls-files -o --exclude-standard -- "*.jar"') do (
-  if "!BK!"=="0" mkdir "%BACKUP%" >nul 2>&1
+  if not exist "%BACKUP%" mkdir "%BACKUP%" >nul 2>&1
   copy "%%f" "%BACKUP%\" >nul 2>&1
-  set "BK=1"
 )
 echo   [2/4] Подготовка модов...   OK
 
@@ -170,17 +168,17 @@ if errorlevel 1 (
 echo   [3/4] Отправка модов...   OK
 
 cls
-if "!HAS!"=="1" (
+if "%HAS%"=="1" (
   echo.
   echo   ---------------------------------
-  echo     Готово^!
+  echo     Готово!
   echo   ---------------------------------
   echo.
   echo   Моды отправлены на сервер.
 ) else (
   echo.
   echo   ---------------------------------
-  echo     Обновлено^!
+  echo     Обновлено!
   echo   ---------------------------------
   echo.
   echo   Новых изменений нет - на сервере
