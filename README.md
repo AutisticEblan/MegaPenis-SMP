@@ -20,3 +20,7 @@
    - инициализирует репозиторий и отправит моды на сервер.
 3. `CONTROLS\PULL.bat` — скачать моды с сервака.
 4. `CONTROLS\PUSH.bat` — отправить моды на сервар.
+
+
+Made by @Fart
+Shoutout to @aislop & @Man & @
