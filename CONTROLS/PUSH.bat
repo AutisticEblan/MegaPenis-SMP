@@ -63,7 +63,7 @@ exit /b 1
 :access_ok
 echo   [2/4] Preparing your mods...
 git remote set-url origin git@github.com:AutisticEblan/MegaPenis-SMP.git >nul 2>&1
-for /f "%%i" in ('git rev-parse --abbrev-ref HEAD') do set "BR=%%i"
+for /f %%i in ('git rev-parse --abbrev-ref HEAD') do set "BR=%%i"
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\push_%TS%"
 set "BK=0"
