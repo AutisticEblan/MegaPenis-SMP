@@ -60,11 +60,12 @@ echo.
 echo   Send the key below to the admin to get access:
 echo.
 type "%KEY%.pub"
+clip < "%KEY%.pub"
 echo.
 echo   ============================================
 echo.
-echo   The key was copied to the clipboard.
-echo   Just paste it to the admin in any message.
+echo   The key above was copied to your clipboard.
+echo   Just paste it to the admin in any message (Ctrl+V).
 echo.
 echo   When the admin grants access, run this script again.
 echo.
