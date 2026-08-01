@@ -16,7 +16,7 @@ where git >nul 2>nul
 if errorlevel 1 goto no_git
 
 :check_access
-<nul set /p="  [1/4] Проверка доступа...  "
+<nul set /p=  [1/4] Проверка доступа...   
 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
 if errorlevel 1 goto no_access
 echo OK
@@ -101,7 +101,7 @@ pause
 exit /b 1
 
 :access_ok
-<nul set /p="  [2/4] Подготовка модов...  "
+<nul set /p=  [2/4] Подготовка модов...   
 
 if exist "%MODS%\.git" goto repo_exists
 
@@ -143,7 +143,7 @@ echo OK
 if not defined TS for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 if not defined BACKUP set "BACKUP=%~dp0_backup\push_%TS%"
 
-<nul set /p="  [3/4] Отправка модов...  "
+<nul set /p=  [3/4] Отправка модов...   
 git add -A >nul 2>&1
 git diff --cached --quiet
 if errorlevel 1 (
