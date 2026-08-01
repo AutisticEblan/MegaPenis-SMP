@@ -7,17 +7,15 @@ cd /d "%MODS%"
 
 cls
 echo.
-echo    =============================
-echo      UPDATE MODS FROM SERVER
-echo    =============================
+echo   ---------------------------------
+echo     PULL MODS - обновить моды
+echo   ---------------------------------
 echo.
 
 where git >nul 2>nul
 if errorlevel 1 goto no_git
-
 if not exist "%MODS%\.git" goto no_git
 
-echo   [1/2] Saving your mods...
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%i"
 set "BACKUP=%~dp0_backup\%TS%"
 set "BK=0"
@@ -32,47 +30,44 @@ for /f "delims=" %%f in ('git diff --name-only -- "*.jar"') do (
   set "BK=1"
 )
 git checkout -- "*.jar" >nul 2>&1
-echo         OK
+echo   [1/2] Сохраняем твои моды...   OK
 
-echo   [2/2] Updating mods...
 git pull origin main >nul 2>&1
 if errorlevel 1 (
   echo.
-  echo   [ERROR] Could not update mods.
-  echo   Your mods are safe in a backup:  %BACKUP%
-  echo   If a mod conflicts, restore it from the backup
-  echo   with a different file name.
+  echo   [ОШИБКА] Не удалось обновить моды.
+  echo   Твои моды в безопасности:  %BACKUP%
+  echo   Если конфликтует мод - восстанови его
+  echo   из бэкапа под другим именем.
   echo.
   pause
   exit /b 1
 )
-echo         OK
+echo   [2/2] Обновляем моды...   OK
 goto done
 
 :no_git
-echo   [1/2] Saving your mods...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$m=(Split-Path '%~dp0' -Parent); $b=Join-Path '%~dp0_backup' (Get-Date -Format 'yyyyMMdd_HHmmss'); New-Item -ItemType Directory -Path $b -Force | Out-Null; Copy-Item (Join-Path $m '*.jar') $b -ErrorAction SilentlyContinue"
-echo         OK
+echo   [1/2] Сохраняем твои моды...   OK
 
-echo   [2/2] Downloading and updating mods...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $m=(Split-Path '%~dp0' -Parent); $b=Join-Path '%~dp0_backup' (Get-Date -Format 'yyyyMMdd_HHmmss'); New-Item -ItemType Directory -Path $b -Force | Out-Null; Copy-Item (Join-Path $m '*.jar') $b -ErrorAction SilentlyContinue; $u='https://github.com/AutisticEblan/MegaPenis-SMP/archive/refs/heads/main.zip'; $t=Join-Path $env:TEMP ('mp_pull_'+[guid]::NewGuid().ToString('N')); $z=$t+'.zip'; Invoke-WebRequest -Uri $u -OutFile $z -UseBasicParsing; Expand-Archive -Path $z -DestinationPath $t -Force; $j=Get-ChildItem -Path $t -Recurse -Filter '*.jar'; if($j.Count -eq 0){exit 1}; $j | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $m $_.Name) -Force }; Remove-Item -LiteralPath $z,$t -Recurse -Force -ErrorAction SilentlyContinue; exit 0"
 if errorlevel 1 (
   echo.
-  echo   [ERROR] Could not update mods.
-  echo   Check your internet connection and try again.
+  echo   [ОШИБКА] Не удалось обновить моды.
+  echo   Проверь интернет и попробуй снова.
   echo.
   pause
   exit /b 1
 )
-echo         OK
+echo   [2/2] Обновляем моды...   OK
 
 :done
 cls
 echo.
-echo   =============================
-echo      DONE - MODS UPDATED!
-echo   =============================
+echo   ---------------------------------
+echo     Готово!
+echo   ---------------------------------
 echo.
-echo   Your mods are up to date.
+echo   Моды обновлены.
 echo.
 pause
